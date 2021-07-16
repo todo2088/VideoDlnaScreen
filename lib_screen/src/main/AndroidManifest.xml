@@ -14,11 +14,13 @@
     <application>
         <service
             android:name=".service.ClingService"
-            android:exported="false" />
+            android:exported="true"
+            android:process=":mediaplayer"/>
 
         <service
             android:name=".service.SystemService"
-            android:exported="false" />
+            android:exported="true"
+            android:process=":mediaplayer"/>
     </application>
 
 </manifest>

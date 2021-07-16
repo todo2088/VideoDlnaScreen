@@ -85,7 +85,9 @@ public class VMNetwork {
      * 获取当前设备 mac 地址
      */
     public static String getMacAddress() {
-        WifiManager wifiManager = (WifiManager) VApplication.getContext()
+        Context context = VApplication.getContext();
+        LogUtils.i("MacAddress","context: "+context);
+        WifiManager wifiManager = (WifiManager) context
                 .getApplicationContext()
                 .getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();

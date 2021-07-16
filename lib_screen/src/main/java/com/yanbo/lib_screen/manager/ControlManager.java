@@ -57,7 +57,7 @@ public class ControlManager {
 
     private AVTransportCallback avtCallback;
     private RenderingControlCallback rcCallback;
-    private boolean isScreenCast = false;
+    private volatile boolean isScreenCast = false;
     private String absTimeStr;
     private long absTime;
     private String trackDurationStr;
@@ -149,7 +149,7 @@ public class ControlManager {
         controlPoint.execute(new Play(instanceId, avtService) {
             @Override
             public void success(ActionInvocation invocation) {
-                LogUtils.i("","Play success");
+                LogUtils.i("", "Play success");
                 callback.onSuccess();
             }
 
@@ -173,7 +173,7 @@ public class ControlManager {
         controlPoint.execute(new Pause(instanceId, avtService) {
             @Override
             public void success(ActionInvocation invocation) {
-                LogUtils.i("","Pause success");
+                LogUtils.i("", "Pause success");
                 callback.onSuccess();
             }
 
@@ -197,7 +197,7 @@ public class ControlManager {
         controlPoint.execute(new Stop(instanceId, avtService) {
             @Override
             public void success(ActionInvocation invocation) {
-                LogUtils.i("","Stop success");
+                LogUtils.i("", "Stop success");
                 callback.onSuccess();
             }
 
@@ -248,7 +248,7 @@ public class ControlManager {
         controlPoint.execute(new SetVolume(instanceId, rcService, volume) {
             @Override
             public void success(ActionInvocation invocation) {
-                LogUtils.d(" ","setVolume success");
+                LogUtils.d(" ", "setVolume success");
                 callback.onSuccess();
             }
 
@@ -272,7 +272,7 @@ public class ControlManager {
         controlPoint.execute(new SetMute(instanceId, rcService, mute) {
             @Override
             public void success(ActionInvocation invocation) {
-                LogUtils.d("","Mute success");
+                LogUtils.d("", "Mute success");
                 callback.onSuccess();
             }
 
@@ -314,7 +314,7 @@ public class ControlManager {
 
             @Override
             public void failure(ActionInvocation invocation, UpnpResponse operation, String msg) {
-                LogUtils.e("setAVTransportURI - error %s url:%s", msg+"   URL   "+uri);
+                LogUtils.e("setAVTransportURI - error %s url:%s", msg + "   URL   " + uri);
                 callback.onError(VError.UNKNOWN, msg);
             }
         });
@@ -329,7 +329,7 @@ public class ControlManager {
             return;
         }
         String metadata = ClingUtil.getItemMetadata(item);
-        LogUtils.i("metadata: " , metadata);
+        LogUtils.i("metadata: ", metadata);
         final String uri = item.getUrl();
         ControlPoint controlPoint = ClingManager.getInstance().getControlPoint();
         controlPoint.execute(new SetAVTransportURI(instanceId, avtService, item.getUrl(), metadata) {
@@ -341,7 +341,7 @@ public class ControlManager {
 
             @Override
             public void failure(ActionInvocation invocation, UpnpResponse operation, String msg) {
-                LogUtils.e("setAVTransportURI - error %s url:%s", msg+"   URL   "+uri);
+                LogUtils.e("setAVTransportURI - error %s url:%s", msg + "   URL   " + uri);
                 callback.onError(VError.UNKNOWN, msg);
             }
         });
@@ -353,7 +353,7 @@ public class ControlManager {
     public void initScreenCastCallback() {
         unInitScreenCastCallback();
         isScreenCast = true;
-        LogUtils.d("","initScreenCastCallback");
+        LogUtils.d("", "initScreenCastCallback");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -389,7 +389,7 @@ public class ControlManager {
         rcCallback = new RenderingControlCallback(rcService) {
             @Override
             protected void received(RenderingControlInfo info) {
-                LogUtils.d("RenderingControlCallback received: mute:%b, volume:%d", info.isMute()+"   volume  "+info
+                LogUtils.d("RenderingControlCallback received: mute:%b, volume:%d", info.isMute() + "   volume  " + info
                         .getVolume());
                 ControlEvent event = new ControlEvent();
                 event.setRcInfo(info);
@@ -403,7 +403,7 @@ public class ControlManager {
      * 取消初始化投屏相关回调
      */
     public void unInitScreenCastCallback() {
-        LogUtils.d("","unInitScreenCastCallback");
+        LogUtils.d("", "unInitScreenCastCallback");
         absTimeStr = "00:00:00";
         absTime = 0;
         trackDurationStr = "00:00:00";
@@ -441,12 +441,12 @@ public class ControlManager {
                         unInitScreenCastCallback();
                     }
                 }
-                LogUtils.d("getPositionInfo success positionInfo:" , positionInfo.toString());
+                LogUtils.d("getPositionInfo success positionInfo:", positionInfo.toString());
             }
 
             @Override
             public void failure(ActionInvocation invocation, UpnpResponse operation, String msg) {
-                LogUtils.e("E","getPositionInfo failed");
+                LogUtils.e("E", "getPositionInfo failed");
             }
         });
     }
@@ -485,12 +485,12 @@ public class ControlManager {
                 ControlEvent event = new ControlEvent();
                 event.setAvtInfo(info);
                 EventBus.getDefault().post(event);
-                LogUtils.d("getTransportInfo success transportInfo:" , ts.getValue());
+                LogUtils.d("getTransportInfo success transportInfo:", ts.getValue());
             }
 
             @Override
             public void failure(ActionInvocation invocation, UpnpResponse operation, String msg) {
-                LogUtils.e("E","getTransportInfo failed");
+                LogUtils.e("E", "getTransportInfo failed");
             }
         });
     }
@@ -512,7 +512,7 @@ public class ControlManager {
                 ControlEvent event = new ControlEvent();
                 event.setRcInfo(info);
                 EventBus.getDefault().post(event);
-                LogUtils.d("getVolume success volume:" , currentVolume);
+                LogUtils.d("getVolume success volume:", currentVolume);
             }
 
             @Override

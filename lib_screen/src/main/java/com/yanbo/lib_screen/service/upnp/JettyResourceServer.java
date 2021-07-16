@@ -17,10 +17,12 @@ package com.yanbo.lib_screen.service.upnp;
 
 
 import com.yanbo.lib_screen.VConstants;
+import com.yanbo.lib_screen.utils.LogUtils;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
+import java.net.BindException;
 import java.util.logging.Logger;
 
 public class JettyResourceServer implements Runnable {
@@ -29,15 +31,43 @@ public class JettyResourceServer implements Runnable {
     private Server mServer;
 
     public JettyResourceServer() {
-        mServer = new Server(VConstants.JETTY_SERVER_PORT); // Has its own QueuedThreadPool
-        mServer.setGracefulShutdown(1000); // Let's wait a second for ongoing transfers to complete
+    }
+
+    private ServletContextHandler getServletContextHandler() {
+        final ServletContextHandler servletContextHandler = new ServletContextHandler();
+        servletContextHandler.setContextPath("/");
+        servletContextHandler.setInitParameter("org.eclipse.jetty.servlet.Default.gzip", "false");
+
+        servletContextHandler.addServlet(AudioResourceServlet.class, "/audio/*");
+        servletContextHandler.addServlet(ImageResourceServlet.class, "/image/*");
+        servletContextHandler.addServlet(VideoResourceServlet.class, "/video/*");
+        return servletContextHandler;
     }
 
     synchronized public void startIfNotRunning() {
-        if (!mServer.isStarted() && !mServer.isStarting()) {
+        if (mServer == null || (!mServer.isStarted() && !mServer.isStarting())) {
             log.info("Starting JettyResourceServer");
             try {
-                mServer.start();
+                int basePort = VConstants.JETTY_SERVER_PORT;
+                for (int port = basePort; port < basePort + 10; port++) {
+                    try {
+                        mServer = new Server(port); // Has its own QueuedThreadPool
+                        log.info("Starting JettyResourceServer "+port);
+                        mServer.setGracefulShutdown(1000); // Let's wait a second for ongoing transfers to complete
+                        mServer.setHandler(getServletContextHandler());
+                        mServer.start();
+                        VConstants.JETTY_SERVER_CURRENT_PORT = port;
+                        log.info("JettyResourceServer port =" + port);
+                        break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        if (!(e instanceof BindException))
+                            if (e.getMessage() == null || !e.getMessage().contains("port")) {
+                                throw e;
+                            }
+                    }
+                }
+
             } catch (Exception ex) {
                 log.severe("Couldn't start Jetty server: " + ex);
                 throw new RuntimeException(ex);
@@ -58,20 +88,13 @@ public class JettyResourceServer implements Runnable {
     }
 
     public String getServerState() {
-        return mServer.getState();
+        if (mServer != null)
+            return mServer.getState();
+        return null;
     }
 
     @Override
     public void run() {
-        ServletContextHandler context = new ServletContextHandler();
-        context.setContextPath("/");
-        context.setInitParameter("org.eclipse.jetty.servlet.Default.gzip", "false");
-        mServer.setHandler(context);
-
-        context.addServlet(AudioResourceServlet.class, "/audio/*");
-        context.addServlet(ImageResourceServlet.class, "/image/*");
-        context.addServlet(VideoResourceServlet.class, "/video/*");
-
         startIfNotRunning();
     }
 

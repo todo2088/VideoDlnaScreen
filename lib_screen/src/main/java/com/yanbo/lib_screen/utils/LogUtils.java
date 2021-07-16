@@ -2,8 +2,11 @@ package com.yanbo.lib_screen.utils;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
-import android.support.annotation.IntDef;
 import android.util.Log;
+
+import androidx.annotation.IntDef;
+
+import com.yanbo.lib_screen.BuildConfig;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -30,7 +33,7 @@ public final class LogUtils {
 
     @Level
     private static int FILTER = ALL;
-    private static boolean DEBUGGABLE = false;
+    private static boolean DEBUGGABLE = BuildConfig.DEBUG;
 
     public static void setFilter(@Level int filter) {
         LogUtils.FILTER = filter;

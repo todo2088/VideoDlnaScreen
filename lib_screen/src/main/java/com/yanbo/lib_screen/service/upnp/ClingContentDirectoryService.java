@@ -2,6 +2,7 @@ package com.yanbo.lib_screen.service.upnp;
 
 
 import com.yanbo.lib_screen.VApplication;
+import com.yanbo.lib_screen.VConstants;
 import com.yanbo.lib_screen.database.MediaContentDao;
 import com.yanbo.lib_screen.entity.VItem;
 
@@ -26,7 +27,7 @@ public class ClingContentDirectoryService extends AbstractContentDirectoryServic
 
     @Override
     public BrowseResult browse(String objectID, BrowseFlag browseFlag, String filter, long firstResult, long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException {
-        Container resultBean = ContainerFactory.createContainer(objectID);
+        Container resultBean = ContainerFactory.createContainer(objectID, VConstants.JETTY_SERVER_CURRENT_PORT);
         DIDLContent content = new DIDLContent();
         for (Container c : resultBean.getContainers()) {
             content.addContainer(c);
@@ -45,7 +46,7 @@ public class ClingContentDirectoryService extends AbstractContentDirectoryServic
     }
 
     static class ContainerFactory {
-        static Container createContainer(String containerId) {
+        static Container createContainer(String containerId,int port) {
             Container result = new Container();
             result.setChildCount(0);
 
@@ -80,7 +81,7 @@ public class ClingContentDirectoryService extends AbstractContentDirectoryServic
                 result.addContainer(videoContainer);
                 result.setChildCount(result.getChildCount() + 1);
             } else if (VItem.AUDIO_ID.equals(containerId)) {
-                MediaContentDao contentDao = new MediaContentDao(VApplication.getContext());
+                MediaContentDao contentDao = new MediaContentDao(VApplication.getContext(),port);
                 //Get audio items
                 List<Item> items = contentDao.getAudioItems();
                 for (Item item : items) {
@@ -88,7 +89,7 @@ public class ClingContentDirectoryService extends AbstractContentDirectoryServic
                     result.setChildCount(result.getChildCount() + 1);
                 }
             } else if (VItem.IMAGE_ID.equals(containerId)) {
-                MediaContentDao contentDao = new MediaContentDao(VApplication.getContext());
+                MediaContentDao contentDao = new MediaContentDao(VApplication.getContext(),port);
                 //Get image items
                 List<Item> items = contentDao.getImageItems();
                 for (Item item : items) {
@@ -96,7 +97,7 @@ public class ClingContentDirectoryService extends AbstractContentDirectoryServic
                     result.setChildCount(result.getChildCount() + 1);
                 }
             } else if (VItem.VIDEO_ID.equals(containerId)) {
-                MediaContentDao contentDao = new MediaContentDao(VApplication.getContext());
+                MediaContentDao contentDao = new MediaContentDao(VApplication.getContext(),port);
                 //Get video items
                 List<Item> items = contentDao.getVideoItems();
                 for (Item item : items) {

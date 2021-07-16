@@ -1,9 +1,11 @@
 package com.yanbo.lib_screen.manager;
 
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import com.yanbo.lib_screen.entity.ClingDevice;
 import com.yanbo.lib_screen.event.DeviceEvent;
+import com.yanbo.lib_screen.utils.LogUtils;
 
 import org.fourthline.cling.model.meta.Device;
 import org.fourthline.cling.model.types.DeviceType;
@@ -11,7 +13,11 @@ import org.fourthline.cling.model.types.UDADeviceType;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by lzan13 on 2018/3/9.
@@ -30,7 +36,7 @@ public class DeviceManager {
      */
     private DeviceManager() {
         if (clingDeviceList == null) {
-            clingDeviceList = new ArrayList<>();
+            clingDeviceList = new CopyOnWriteArrayList<>();
         }
         clingDeviceList.clear();
     }
@@ -65,9 +71,12 @@ public class DeviceManager {
     public void addDevice(@NonNull Device device) {
         if (device.getType().equals(DMR_DEVICE)) {
             ClingDevice clingDevice = new ClingDevice(device);
-            clingDeviceList.add(clingDevice);
+            if (!clingDeviceList.contains(clingDevice)) {
+                clingDeviceList.add(clingDevice);
+            }
             EventBus.getDefault().post(new DeviceEvent());
         }
+        LogUtils.i("ClingDevice ",device.toString());
     }
 
     /**
@@ -84,8 +93,10 @@ public class DeviceManager {
      * 获取设备
      */
     public ClingDevice getClingDevice(@NonNull Device device) {
-        for (ClingDevice tmpDevice : clingDeviceList) {
-            if (device.equals(tmpDevice.getDevice())) {
+        Iterator<ClingDevice> iterator = clingDeviceList.iterator();
+        while (iterator.hasNext()){
+            ClingDevice tmpDevice = iterator.next();
+            if (Objects.equals(device, tmpDevice.getDevice())) {
                 return tmpDevice;
             }
         }

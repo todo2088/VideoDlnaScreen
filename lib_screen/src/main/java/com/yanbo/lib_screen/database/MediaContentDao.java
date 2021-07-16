@@ -25,6 +25,7 @@ import android.provider.MediaStore.Video;
 
 import com.yanbo.lib_screen.VConstants;
 import com.yanbo.lib_screen.entity.VItem;
+import com.yanbo.lib_screen.utils.LogUtils;
 import com.yanbo.lib_screen.utils.VMNetwork;
 
 import org.fourthline.cling.model.ModelUtil;
@@ -45,9 +46,10 @@ public class MediaContentDao {
     private ContentResolver cr;
     private String serverURL;
 
-    public MediaContentDao(Context context) {
+    public MediaContentDao(Context context, int JETTY_SERVER_PORT) {
         cr = context.getContentResolver();
-        serverURL = "http://" + VMNetwork.getLocalIP() + ":" + VConstants.JETTY_SERVER_PORT + "/";
+        serverURL = "http://" + VMNetwork.getLocalIP() + ":" + JETTY_SERVER_PORT + "/";
+        LogUtils.i("MediaContentDao serverURL ", serverURL);
     }
 
     public ArrayList<Item> getAudioItems() {
@@ -82,7 +84,11 @@ public class MediaContentDao {
                     new PersonWithRole(creator), res);
             items.add(musicTrack);
         }
-
+        try {
+            cur.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return items;
     }
 
@@ -114,7 +120,11 @@ public class MediaContentDao {
             ImageItem imageItem = new ImageItem(id, VItem.IMAGE_ID, title, creator, res);
             items.add(imageItem);
         }
-
+        try {
+            cur.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return items;
     }
 
@@ -150,6 +160,11 @@ public class MediaContentDao {
             res.setResolution(resolution);
             Movie movie = new Movie(id, VItem.VIDEO_ID, title, creator, res);
             items.add(movie);
+        }
+        try {
+            cur.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return items;
     }
